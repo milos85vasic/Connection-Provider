@@ -7,50 +7,42 @@ import net.milosvasic.connection.provider.commons.Executor
 import java.io.*
 import java.nio.charset.StandardCharsets
 
-public class SimpleSerialConnection internal constructor(
+class SimpleSerialConnection internal constructor(
         dataReceiveCallback: DataReceiveCallback,
         connectionErrorCallback: ConnectionErrorCallback,
-        internal val comPort: String,
-        internal val comPortOut: String?
+        private val comPortOut: String,
+        private val comPortIn: String?
 ) : DataConnection(dataReceiveCallback, connectionErrorCallback) {
+
+    override val executor: Executor
+        get() = Executor.obtainExecutor(2)
 
     private var inputStream: InputStream? = null
     private var outputStream: OutputStream? = null
 
     override fun connect() {
-        if (inputStream != null || outputStream != null) {
-            throw IllegalStateException("Already connected")
-        }
-        val fileIn = File(comPort)
-        if (fileIn.exists()) {
-            inputStream = BufferedInputStream(FileInputStream(fileIn))
-            val bufferedReader = BufferedReader(InputStreamReader(inputStream, StandardCharsets.UTF_8))
-            Executor.execute(Runnable {
-                while (inputStream != null) {
-                    try {
-                        val line = bufferedReader.readLine()
-                        if (line != null) {
-                            dataReceiveCallback.onData(line.toByteArray())
-                        }
-                    } catch (e: Exception) {
-                        connectionErrorCallback.onError(e)
-                    }
-                }
-            })
-        }
-        comPortOut?.let {
-            val fileOut = File(comPortOut)
-            if (fileOut.exists()) {
-                outputStream = BufferedOutputStream(FileOutputStream(fileOut))
-            }
+        if (isConnected()) {
+            connectionErrorCallback.onError(IllegalStateException("Already connected"))
             return
         }
-        val fileOut = File(comPort)
-        if (fileOut.exists()) {
+        val fileOut = File(comPortOut)
+        try {
             outputStream = BufferedOutputStream(FileOutputStream(fileOut))
+        } catch (e: Exception) {
+            connectionErrorCallback.onError(e)
             return
         }
-        throw IllegalArgumentException("Unable to initialize input connection to: $comPort")
+        var inPath = comPortOut
+        comPortIn?.let {
+            inPath = comPortIn
+        }
+        val fileIn = File(inPath)
+        try {
+            inputStream = BufferedInputStream(FileInputStream(fileIn))
+            startReading()
+        } catch (e: Exception) {
+            connectionErrorCallback.onError(e)
+        }
     }
 
     override fun disconnect() {
@@ -61,11 +53,32 @@ public class SimpleSerialConnection internal constructor(
     }
 
     override fun write(data: ByteArray) {
-        outputStream?.let {
-            outputStream?.write(data)
-            return
+        executor.execute {
+            outputStream?.let {
+                outputStream?.write(data)
+                return@execute
+            }
+            connectionErrorCallback.onError(IllegalStateException("Not connected."))
         }
-        throw IllegalStateException("Not connected.")
+    }
+
+    override fun isConnected() = inputStream != null && outputStream != null
+
+    private fun startReading() {
+        executor.execute {
+            val bufferedReader = BufferedReader(InputStreamReader(inputStream, StandardCharsets.UTF_8))
+            while (inputStream != null) {
+                try {
+                    val line = bufferedReader.readLine()
+                    line?.let {
+                        dataReceiveCallback.onData(line.toByteArray())
+                    }
+                } catch (e: Exception) {
+                    disconnect()
+                    connectionErrorCallback.onError(e)
+                }
+            }
+        }
     }
 
 }

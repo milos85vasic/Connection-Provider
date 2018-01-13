@@ -5,7 +5,7 @@ import net.milosvasic.connection.provider.commons.ConnectionProviding
 import net.milosvasic.connection.provider.commons.ConnectionProvidingCriteria
 import net.milosvasic.connection.provider.commons.DataReceiveCallback
 
-public class SimpleSerialConnectionProvidingCriteria(
+class SimpleSerialConnectionProvidingCriteria(
         val comPort: String,
         val dataReceiveCallback: DataReceiveCallback,
         val connectionErrorCallback: ConnectionErrorCallback,
