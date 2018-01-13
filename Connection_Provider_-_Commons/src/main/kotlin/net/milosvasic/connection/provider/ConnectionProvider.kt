@@ -3,13 +3,13 @@ package net.milosvasic.connection.provider
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
-object ConnectionProvider : ConnectionProviding<ConnectionProvidingCriteria> {
+public object ConnectionProvider : ConnectionProviding<ConnectionProvidingCriteria> {
 
-    private val providers = ConcurrentHashMap<KClass<ConnectionProvidingCriteria>, ConnectionProviding<ConnectionProvidingCriteria>>()
+    private val providers = ConcurrentHashMap<KClass<*>, ConnectionProviding<ConnectionProvidingCriteria>>()
 
     internal fun registerProvider(
             provider: ConnectionProviding<ConnectionProvidingCriteria>,
-            criteria: KClass<ConnectionProvidingCriteria>
+            criteria: KClass<*>
     ) {
         providers[criteria] = provider
     }
