@@ -7,14 +7,14 @@ object ConnectionProvider : ConnectionProviding<ConnectionProvidingCriteria> {
 
     private val providers = ConcurrentHashMap<KClass<ConnectionProvidingCriteria>, ConnectionProviding<ConnectionProvidingCriteria>>()
 
-    public fun registerProvider(
+    internal fun registerProvider(
             provider: ConnectionProviding<ConnectionProvidingCriteria>,
             criteria: KClass<ConnectionProvidingCriteria>
     ) {
         providers[criteria] = provider
     }
 
-    public fun unregisterProvider(criteria: KClass<ConnectionProvidingCriteria>) {
+    internal fun unregisterProvider(criteria: KClass<ConnectionProvidingCriteria>) {
         providers.remove(criteria)
     }
 
