@@ -49,6 +49,9 @@ class SimpleSerialConnectionTest {
         } catch (e: Exception) {
             fail(e)
         }
+        // Confirm we connected.
+        Assert.assertTrue(connection.isConnected())
+
         // Confirm we can't connect twice.
 //        var failed = false
 //        try {
@@ -58,16 +61,22 @@ class SimpleSerialConnectionTest {
 //        }
 //        Assert.assertTrue(failed)
         // Try to write data:
-        try {
-            connection.write("Test\n".toByteArray())
-        } catch (e: Exception) {
-            fail(e)
-        }
+
+//        try {
+//            connection.write("Test\n".toByteArray())
+//        } catch (e: Exception) {
+//            fail(e)
+//        }
+
+        Thread.sleep(2000)
+
         try {
             connection.disconnect()
         } catch (e: Exception) {
             fail(e)
         }
+
+        Assert.assertFalse(connection.isConnected())
         // }
     }
 

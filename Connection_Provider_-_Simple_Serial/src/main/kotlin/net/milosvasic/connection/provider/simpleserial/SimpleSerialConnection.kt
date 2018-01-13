@@ -28,6 +28,9 @@ class SimpleSerialConnection internal constructor(
         val fileOut = File(comPortOut)
         try {
             outputStream = BufferedOutputStream(FileOutputStream(fileOut))
+            if (outputStream == null) {
+                connectionErrorCallback.onError(IOException("Couldn't connect to: $comPortOut"))
+            }
         } catch (e: Exception) {
             connectionErrorCallback.onError(e)
             return
@@ -39,17 +42,23 @@ class SimpleSerialConnection internal constructor(
         val fileIn = File(inPath)
         try {
             inputStream = BufferedInputStream(FileInputStream(fileIn))
-            startReading()
+            inputStream?.let {
+                startReading()
+                return
+            }
+            connectionErrorCallback.onError(IOException("Couldn't connect to: $fileIn"))
         } catch (e: Exception) {
             connectionErrorCallback.onError(e)
         }
     }
 
     override fun disconnect() {
-        inputStream?.close()
-        outputStream?.close()
-        inputStream = null
-        outputStream = null
+        executor.execute {
+            inputStream?.close()
+            outputStream?.close()
+            inputStream = null
+            outputStream = null
+        }
     }
 
     override fun write(data: ByteArray) {
@@ -66,7 +75,13 @@ class SimpleSerialConnection internal constructor(
 
     private fun startReading() {
         executor.execute {
-            val bufferedReader = BufferedReader(InputStreamReader(inputStream, StandardCharsets.UTF_8))
+            val bufferedReader: BufferedReader?
+            try {
+                bufferedReader = BufferedReader(InputStreamReader(inputStream, StandardCharsets.UTF_8))
+            } catch (e: Exception) {
+                connectionErrorCallback.onError(e)
+                return@execute
+            }
             while (inputStream != null) {
                 try {
                     val line = bufferedReader.readLine()
