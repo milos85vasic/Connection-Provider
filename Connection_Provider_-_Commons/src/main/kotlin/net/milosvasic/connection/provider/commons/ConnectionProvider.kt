@@ -1,4 +1,4 @@
-package net.milosvasic.connection.provider
+package net.milosvasic.connection.provider.commons
 
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass

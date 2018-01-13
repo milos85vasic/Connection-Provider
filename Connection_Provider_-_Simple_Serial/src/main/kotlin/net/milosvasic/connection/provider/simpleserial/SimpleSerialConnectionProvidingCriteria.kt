@@ -1,8 +1,8 @@
 package net.milosvasic.connection.provider.simpleserial
 
-import net.milosvasic.connection.provider.ConnectionProviding
-import net.milosvasic.connection.provider.ConnectionProvidingCriteria
-import net.milosvasic.connection.provider.DataCallback
+import net.milosvasic.connection.provider.commons.ConnectionProviding
+import net.milosvasic.connection.provider.commons.ConnectionProvidingCriteria
+import net.milosvasic.connection.provider.commons.DataCallback
 
 public class SimpleSerialConnectionProvidingCriteria(
         val comPort: String,

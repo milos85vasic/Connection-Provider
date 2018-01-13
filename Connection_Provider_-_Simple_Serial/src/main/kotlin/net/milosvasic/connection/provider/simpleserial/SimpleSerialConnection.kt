@@ -1,7 +1,7 @@
 package net.milosvasic.connection.provider.simpleserial
 
-import net.milosvasic.connection.provider.DataCallback
-import net.milosvasic.connection.provider.DataConnection
+import net.milosvasic.connection.provider.commons.DataCallback
+import net.milosvasic.connection.provider.commons.DataConnection
 import java.io.*
 
 public class SimpleSerialConnection internal constructor(

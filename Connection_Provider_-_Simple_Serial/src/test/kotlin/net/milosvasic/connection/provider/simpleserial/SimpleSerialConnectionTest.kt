@@ -1,7 +1,7 @@
 package net.milosvasic.connection.provider.simpleserial
 
-import net.milosvasic.connection.provider.ConnectionProvider
-import net.milosvasic.connection.provider.DataCallback
+import net.milosvasic.connection.provider.commons.ConnectionProvider
+import net.milosvasic.connection.provider.commons.DataCallback
 import org.junit.Assert
 import org.junit.Test
 

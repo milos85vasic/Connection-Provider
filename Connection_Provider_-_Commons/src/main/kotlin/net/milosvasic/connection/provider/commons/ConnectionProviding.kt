@@ -1,4 +1,4 @@
-package net.milosvasic.connection.provider
+package net.milosvasic.connection.provider.commons
 
 interface ConnectionProviding<in T : ConnectionProvidingCriteria> {
 
