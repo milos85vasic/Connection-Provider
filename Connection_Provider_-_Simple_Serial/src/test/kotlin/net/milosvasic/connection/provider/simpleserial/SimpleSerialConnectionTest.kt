@@ -2,14 +2,18 @@ package net.milosvasic.connection.provider.simpleserial
 
 import net.milosvasic.connection.provider.commons.ConnectionProvider
 import net.milosvasic.connection.provider.commons.DataCallback
+import net.milosvasic.logger.ConsoleLogger
 import org.junit.Assert
 import org.junit.Test
 
 public class SimpleSerialConnectionTest {
 
+    val logger = ConsoleLogger()
+    val tag = "Simple serial connection test"
+
     private val callback = object : DataCallback {
         override fun onData(data: ByteArray) {
-
+            logger.d(tag, data.toString())
         }
     }
 
