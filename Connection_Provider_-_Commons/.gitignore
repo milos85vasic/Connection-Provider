@@ -1,0 +1,5 @@
+"
+# Git ignore for module ':Connection_Provider_-_Commons'
+build/*
+credentials*.gradle
+                

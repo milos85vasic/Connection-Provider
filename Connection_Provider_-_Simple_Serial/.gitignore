@@ -1,0 +1,5 @@
+"
+# Git ignore for module ':Connection_Provider_-_Simple_Serial'
+build/*
+credentials*.gradle
+                
