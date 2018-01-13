@@ -14,10 +14,6 @@ public object ConnectionProvider : ConnectionProviding<ConnectionProvidingCriter
         providers[criteria] = provider
     }
 
-    internal fun unregisterProvider(criteria: KClass<ConnectionProvidingCriteria>) {
-        providers.remove(criteria)
-    }
-
     override fun provide(criteria: ConnectionProvidingCriteria): Connection {
         val connection = providers[criteria::class]?.provide(criteria)
         if (connection != null) return connection
