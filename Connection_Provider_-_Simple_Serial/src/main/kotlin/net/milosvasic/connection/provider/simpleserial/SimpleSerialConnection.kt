@@ -15,8 +15,7 @@ class SimpleSerialConnection internal constructor(
         private val comPortIn: String?
 ) : DataConnection(dataReceiveCallback, connectionErrorCallback) {
 
-    override val executor: Executor
-        get() = Executor.obtainExecutor(2)
+    override val executor = Executor.obtainExecutor(2)
 
     private val connected = AtomicBoolean()
     private var inputStream: InputStream? = null

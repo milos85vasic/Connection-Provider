@@ -44,11 +44,7 @@ class SimpleSerialConnectionTest {
         Assert.assertNotNull(connection)
         // Connecting - Disconnecting in a row.
         // for (x in 0..10) {
-        try {
-            connection.connect()
-        } catch (e: Exception) {
-            fail(e)
-        }
+        connection.connect()
 
         // Confirm we can't connect twice.
 //        var failed = false
@@ -71,11 +67,7 @@ class SimpleSerialConnectionTest {
         // Confirm we are connected.
         Assert.assertTrue(connection.isConnected())
 
-        try {
-            connection.disconnect()
-        } catch (e: Exception) {
-            fail(e)
-        }
+        connection.disconnect()
 
         Assert.assertFalse(connection.isConnected())
         // }
