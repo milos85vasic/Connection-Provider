@@ -1,13 +1,13 @@
 package net.milosvasic.connection.provider
 
-abstract class ConnectionProvidingCriteria {
+public abstract class ConnectionProvidingCriteria {
+
+    private fun registerProvider() = ConnectionProvider.registerProvider(getProvider(), this::class)
+
+    protected abstract fun getProvider(): ConnectionProviding<ConnectionProvidingCriteria>
 
     init {
         registerProvider()
     }
-
-    private fun registerProvider() = ConnectionProvider.registerProvider(getProvider(), this::class)
-
-    internal abstract fun getProvider(): ConnectionProviding<ConnectionProvidingCriteria>
 
 }
