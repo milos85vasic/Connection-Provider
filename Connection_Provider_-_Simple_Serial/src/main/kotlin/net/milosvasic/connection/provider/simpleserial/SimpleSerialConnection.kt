@@ -6,6 +6,7 @@ import net.milosvasic.connection.provider.commons.DataConnection
 import net.milosvasic.connection.provider.commons.Executor
 import java.io.*
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.atomic.AtomicBoolean
 
 class SimpleSerialConnection internal constructor(
         dataReceiveCallback: DataReceiveCallback,
@@ -17,6 +18,7 @@ class SimpleSerialConnection internal constructor(
     override val executor: Executor
         get() = Executor.obtainExecutor(2)
 
+    private val connected = AtomicBoolean()
     private var inputStream: InputStream? = null
     private var outputStream: OutputStream? = null
 
@@ -29,10 +31,10 @@ class SimpleSerialConnection internal constructor(
         try {
             outputStream = BufferedOutputStream(FileOutputStream(fileOut))
             if (outputStream == null) {
-                connectionErrorCallback.onError(IOException("Couldn't connect to: $comPortOut"))
+                disconnect(IOException("Couldn't connect to: $comPortOut"))
             }
         } catch (e: Exception) {
-            connectionErrorCallback.onError(e)
+            disconnect(e)
             return
         }
         var inPath = comPortOut
@@ -46,19 +48,15 @@ class SimpleSerialConnection internal constructor(
                 startReading()
                 return
             }
-            connectionErrorCallback.onError(IOException("Couldn't connect to: $fileIn"))
+            disconnect(IOException("Couldn't connect to: $fileIn"))
         } catch (e: Exception) {
-            connectionErrorCallback.onError(e)
+            disconnect(e)
+            return
         }
     }
 
     override fun disconnect() {
-        executor.execute {
-            inputStream?.close()
-            outputStream?.close()
-            inputStream = null
-            outputStream = null
-        }
+        disconnect(null)
     }
 
     override fun write(data: ByteArray) {
@@ -67,11 +65,11 @@ class SimpleSerialConnection internal constructor(
                 outputStream?.write(data)
                 return@execute
             }
-            connectionErrorCallback.onError(IllegalStateException("Not connected."))
+            disconnect(IllegalStateException("Not connected."))
         }
     }
 
-    override fun isConnected() = inputStream != null && outputStream != null
+    override fun isConnected() = connected.get()
 
     private fun startReading() {
         executor.execute {
@@ -79,7 +77,7 @@ class SimpleSerialConnection internal constructor(
             try {
                 bufferedReader = BufferedReader(InputStreamReader(inputStream, StandardCharsets.UTF_8))
             } catch (e: Exception) {
-                connectionErrorCallback.onError(e)
+                disconnect(e)
                 return@execute
             }
             while (inputStream != null) {
@@ -89,10 +87,23 @@ class SimpleSerialConnection internal constructor(
                         dataReceiveCallback.onData(line.toByteArray())
                     }
                 } catch (e: Exception) {
-                    disconnect()
-                    connectionErrorCallback.onError(e)
+                    disconnect(e)
                 }
             }
+            connected.set(true)
+        }
+    }
+
+    private fun disconnect(e: Exception?) {
+        executor.execute {
+            inputStream?.close()
+            outputStream?.close()
+            inputStream = null
+            outputStream = null
+            e?.let {
+                connectionErrorCallback.onError(e)
+            }
+            connected.set(false)
         }
     }
 

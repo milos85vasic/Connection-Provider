@@ -49,8 +49,6 @@ class SimpleSerialConnectionTest {
         } catch (e: Exception) {
             fail(e)
         }
-        // Confirm we connected.
-        Assert.assertTrue(connection.isConnected())
 
         // Confirm we can't connect twice.
 //        var failed = false
@@ -69,6 +67,9 @@ class SimpleSerialConnectionTest {
 //        }
 
         Thread.sleep(2000)
+
+        // Confirm we are connected.
+        Assert.assertTrue(connection.isConnected())
 
         try {
             connection.disconnect()
