@@ -33,7 +33,7 @@ public class SimpleSerialConnectionTest {
                 failed = true
             }
             Assert.assertTrue(failed)
-            // Try to writ data:
+            // Try to write data:
             try {
                 connection.write("Test\n".toByteArray())
             } catch (e: Exception) {
