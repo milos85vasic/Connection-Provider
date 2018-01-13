@@ -1,0 +1,3 @@
+package net.milosvasic.connection.provider
+
+interface ConnectionProvidingCriteria

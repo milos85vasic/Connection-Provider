@@ -1,4 +1,4 @@
-package provider.net.milosvasic.connection
+package net.milosvasic.connection.provider
 
 interface ConnectionProviding {
 
