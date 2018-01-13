@@ -1,6 +1,6 @@
 package net.milosvasic.connection.provider.commons
 
-interface DataCallback {
+interface DataReceiveCallback {
 
     fun onData(data: ByteArray)
 

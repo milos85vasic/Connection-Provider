@@ -1,11 +1,11 @@
 package net.milosvasic.connection.provider.commons
 
-interface Connection {
+abstract class Connection(connectionErrorCallback: ConnectionErrorCallback) {
 
-    fun connect()
+    abstract fun connect()
 
-    fun disconnect()
+    abstract fun disconnect()
 
-    fun write(data: ByteArray)
+    abstract fun write(data: ByteArray)
 
 }
