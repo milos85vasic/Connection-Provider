@@ -1,5 +1,6 @@
 package net.milosvasic.connection.provider.simpleserial
 
+import net.milosvasic.connection.provider.ConnectionProvider
 import net.milosvasic.connection.provider.ConnectionProvidingCriteria
 import net.milosvasic.connection.provider.DataCallback
 
