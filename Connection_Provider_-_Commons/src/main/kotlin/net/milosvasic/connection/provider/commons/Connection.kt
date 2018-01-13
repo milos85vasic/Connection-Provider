@@ -1,10 +1,8 @@
 package net.milosvasic.connection.provider.commons
 
-abstract class Connection {
+abstract class Connection(val callback: ConnectionCallback) {
 
     protected abstract val executor: Executor
-
-    abstract val connectionErrorCallback: ConnectionErrorCallback
 
     abstract fun connect()
 

@@ -1,8 +1,7 @@
 package net.milosvasic.connection.provider.simpleserial
 
-import net.milosvasic.connection.provider.commons.ConnectionErrorCallback
+import net.milosvasic.connection.provider.commons.ConnectionCallback
 import net.milosvasic.connection.provider.commons.ConnectionProvider
-import net.milosvasic.connection.provider.commons.DataReceiveCallback
 import net.milosvasic.logger.ConsoleLogger
 import org.junit.Assert
 import org.junit.Before
@@ -15,15 +14,17 @@ class SimpleSerialConnectionTest {
     val tag = "Simple serial connection test"
     val path = "${System.getProperty("user.home")}/test.txt"
 
-    private val dataCallback = object : DataReceiveCallback {
+    private val callback = object : ConnectionCallback {
         override fun onData(data: ByteArray) {
             Assert.fail("! ! ! ! ! ")
         }
-    }
 
-    private val errorCallback = object : ConnectionErrorCallback {
         override fun onError(e: Exception) {
             fail(e)
+        }
+
+        override fun onConnectivityChanged(connected: Boolean) {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         }
     }
 
@@ -39,7 +40,7 @@ class SimpleSerialConnectionTest {
 
     @Test
     fun testSimpleSerialConnection() {
-        val criteria = SimpleSerialConnectionProvidingCriteria(path, dataCallback, errorCallback)
+        val criteria = SimpleSerialConnectionProvidingCriteria(path, callback)
         val connection = ConnectionProvider.provide(criteria)
         Assert.assertNotNull(connection)
         // Connecting - Disconnecting in a row.

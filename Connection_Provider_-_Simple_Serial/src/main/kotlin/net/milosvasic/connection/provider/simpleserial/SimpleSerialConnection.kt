@@ -1,19 +1,15 @@
 package net.milosvasic.connection.provider.simpleserial
 
-import net.milosvasic.connection.provider.commons.ConnectionErrorCallback
-import net.milosvasic.connection.provider.commons.DataReceiveCallback
-import net.milosvasic.connection.provider.commons.DataConnection
-import net.milosvasic.connection.provider.commons.Executor
+import net.milosvasic.connection.provider.commons.*
 import java.io.*
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.atomic.AtomicBoolean
 
 class SimpleSerialConnection internal constructor(
-        dataReceiveCallback: DataReceiveCallback,
-        connectionErrorCallback: ConnectionErrorCallback,
+        callback: ConnectionCallback,
         private val comPortOut: String,
         private val comPortIn: String?
-) : DataConnection(dataReceiveCallback, connectionErrorCallback) {
+) : DataConnection(callback) {
 
     override val executor = Executor.obtainExecutor(2)
 
@@ -23,7 +19,7 @@ class SimpleSerialConnection internal constructor(
 
     override fun connect() {
         if (isConnected()) {
-            connectionErrorCallback.onError(IllegalStateException("Already connected"))
+            callback.onError(IllegalStateException("Already connected"))
             return
         }
         val fileOut = File(comPortOut)
@@ -72,7 +68,7 @@ class SimpleSerialConnection internal constructor(
 
     private fun startReading() {
         executor.execute {
-//            val bufferedReader: BufferedReader?
+            //            val bufferedReader: BufferedReader?
 //            try {
 //                bufferedReader = BufferedReader(InputStreamReader(inputStream, StandardCharsets.UTF_8))
 //            } catch (e: Exception) {
@@ -89,8 +85,13 @@ class SimpleSerialConnection internal constructor(
 //                    disconnect(e)
 //                }
 //            }
-            connected.set(true)
+            setConnected(true)
         }
+    }
+
+    private fun setConnected(toggle: Boolean) {
+        connected.set(toggle)
+        callback.onConnectivityChanged(isConnected())
     }
 
     private fun disconnect(e: Exception?) {
@@ -100,9 +101,9 @@ class SimpleSerialConnection internal constructor(
             inputStream = null
             outputStream = null
             e?.let {
-                connectionErrorCallback.onError(e)
+                callback.onError(e)
             }
-            connected.set(false)
+            setConnected(false)
         }
     }
 
