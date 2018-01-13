@@ -15,11 +15,7 @@ public class SimpleSerialConnectionTest {
 
     @Test
     fun testSimpleSerialConnection() {
-        val criteria = SimpleSerialConnectionProvidingCriteria(
-                "/dev/stdin",
-                callback,
-                "/dev/stdout"
-        )
+        val criteria = SimpleSerialConnectionProvidingCriteria("/dev/stdin", callback, "/dev/stdout")
         val connection = ConnectionProvider.provide(criteria)
         Assert.assertNotNull(connection)
         // Connecting - Disconnecting in a row.
@@ -37,6 +33,12 @@ public class SimpleSerialConnectionTest {
                 failed = true
             }
             Assert.assertTrue(failed)
+            // Try to writ data:
+            try {
+                connection.write("Test\n".toByteArray())
+            } catch (e: Exception) {
+                fail(e)
+            }
             try {
                 connection.disconnect()
             } catch (e: Exception) {

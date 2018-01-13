@@ -44,7 +44,11 @@ public class SimpleSerialConnection internal constructor(
     }
 
     override fun write(data: ByteArray) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        outputStream?.let {
+            outputStream?.write(data)
+            return
+        }
+        throw IllegalStateException("Not connected.")
     }
 
 }
