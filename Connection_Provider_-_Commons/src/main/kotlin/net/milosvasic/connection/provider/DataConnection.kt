@@ -1,3 +1,3 @@
 package net.milosvasic.connection.provider
 
-public abstract class DataConnection(callback: DataCallback) : Connection
+public abstract class DataConnection(val callback: DataCallback) : Connection

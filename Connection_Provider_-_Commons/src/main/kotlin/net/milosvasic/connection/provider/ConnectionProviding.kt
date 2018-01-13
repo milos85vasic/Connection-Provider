@@ -1,7 +1,7 @@
 package net.milosvasic.connection.provider
 
-interface ConnectionProviding {
+interface ConnectionProviding<in T : ConnectionProvidingCriteria> {
 
-    fun provide(criteria: ConnectionProvidingCriteria): Connection
+    fun provide(criteria: T): Connection
 
 }
