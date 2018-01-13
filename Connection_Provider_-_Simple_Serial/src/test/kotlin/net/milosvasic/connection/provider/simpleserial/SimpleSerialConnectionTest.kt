@@ -69,6 +69,8 @@ class SimpleSerialConnectionTest {
 
         connection.disconnect()
 
+        Thread.sleep(2000)
+
         Assert.assertFalse(connection.isConnected())
         // }
     }

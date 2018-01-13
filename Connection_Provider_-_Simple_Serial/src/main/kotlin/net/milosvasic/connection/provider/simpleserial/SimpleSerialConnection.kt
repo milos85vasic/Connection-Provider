@@ -72,23 +72,23 @@ class SimpleSerialConnection internal constructor(
 
     private fun startReading() {
         executor.execute {
-            val bufferedReader: BufferedReader?
-            try {
-                bufferedReader = BufferedReader(InputStreamReader(inputStream, StandardCharsets.UTF_8))
-            } catch (e: Exception) {
-                disconnect(e)
-                return@execute
-            }
-            while (inputStream != null) {
-                try {
-                    val line = bufferedReader.readLine()
-                    line?.let {
-                        dataReceiveCallback.onData(line.toByteArray())
-                    }
-                } catch (e: Exception) {
-                    disconnect(e)
-                }
-            }
+//            val bufferedReader: BufferedReader?
+//            try {
+//                bufferedReader = BufferedReader(InputStreamReader(inputStream, StandardCharsets.UTF_8))
+//            } catch (e: Exception) {
+//                disconnect(e)
+//                return@execute
+//            }
+//            while (inputStream != null) {
+//                try {
+//                    val line = bufferedReader.readLine()
+//                    line?.let {
+//                        dataReceiveCallback.onData(line.toByteArray())
+//                    }
+//                } catch (e: Exception) {
+//                    disconnect(e)
+//                }
+//            }
             connected.set(true)
         }
     }
