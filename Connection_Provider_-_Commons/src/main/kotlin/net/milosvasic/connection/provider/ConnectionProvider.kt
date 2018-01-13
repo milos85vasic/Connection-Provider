@@ -20,9 +20,7 @@ public object ConnectionProvider : ConnectionProviding<ConnectionProvidingCriter
 
     override fun provide(criteria: ConnectionProvidingCriteria): Connection {
         val connection = providers[criteria::class]?.provide(criteria)
-        connection?.let {
-            return@let
-        }
+        if (connection != null) return connection
         throw IllegalArgumentException("Unsupported criteria: $criteria")
     }
 
