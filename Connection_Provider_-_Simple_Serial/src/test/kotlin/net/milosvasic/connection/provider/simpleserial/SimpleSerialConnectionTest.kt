@@ -43,8 +43,12 @@ class SimpleSerialConnectionTest {
         val connection = ConnectionProvider.provide(criteria)
         Assert.assertNotNull(connection)
         // Connecting - Disconnecting in a row.
-        // for (x in 0..10) {
+        // for (x in 0..10) {       // TODO: Return back 10 iterations.
         connection.connect()
+        Thread.sleep(1000)    // TODO: Async with callbacks.
+
+        // Confirm we are connected.
+        Assert.assertTrue(connection.isConnected())
 
         // Confirm we can't connect twice.
 //        var failed = false
@@ -54,22 +58,17 @@ class SimpleSerialConnectionTest {
 //            failed = true
 //        }
 //        Assert.assertTrue(failed)
+
         // Try to write data:
-
-//        try {
-//            connection.write("Test\n".toByteArray())
-//        } catch (e: Exception) {
-//            fail(e)
-//        }
-
-        Thread.sleep(2000)
-
-        // Confirm we are connected.
-        Assert.assertTrue(connection.isConnected())
+        try {
+            connection.write("Test\n".toByteArray())
+        } catch (e: Exception) {
+            fail(e)
+        }
+        Thread.sleep(1000)       // TODO: Async with callbacks.
 
         connection.disconnect()
-
-        Thread.sleep(2000)
+        Thread.sleep(1000)       // TODO: Async with callbacks.
 
         Assert.assertFalse(connection.isConnected())
         // }
