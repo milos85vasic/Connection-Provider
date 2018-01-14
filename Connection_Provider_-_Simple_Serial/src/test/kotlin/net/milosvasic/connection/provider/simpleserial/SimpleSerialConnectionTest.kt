@@ -3,15 +3,14 @@ package net.milosvasic.connection.provider.simpleserial
 import net.milosvasic.connection.provider.commons.ConnectionCallback
 import net.milosvasic.connection.provider.commons.ConnectionProvider
 import net.milosvasic.logger.ConsoleLogger
+import net.milosvasic.testing.toolkit.ToolkitTest
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import java.io.File
 
-class SimpleSerialConnectionTest {
+class SimpleSerialConnectionTest : ToolkitTest() {
 
-    val logger = ConsoleLogger()
-    val tag = "Simple serial connection test"
     val path = "${System.getProperty("user.home")}/test.txt"
 
     private val callback = object : ConnectionCallback {
@@ -24,12 +23,11 @@ class SimpleSerialConnectionTest {
         }
 
         override fun onConnectivityChanged(connected: Boolean) {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            // TODO("not implemented")
         }
     }
 
-    @Before
-    fun beforeTest(){
+    override fun beforeTest() {
         val testFile = File(path)
         if (testFile.exists()) {
             testFile.delete()
@@ -38,15 +36,14 @@ class SimpleSerialConnectionTest {
         Assert.assertTrue(testFile.exists())
     }
 
-    @Test
-    fun testSimpleSerialConnection() {
+    override fun testImplementation() {
         val criteria = SimpleSerialConnectionProvidingCriteria(path, callback)
         val connection = ConnectionProvider.provide(criteria)
         Assert.assertNotNull(connection)
         // Connecting - Disconnecting in a row.
         // for (x in 0..10) {       // TODO: Return back 10 iterations.
         connection.connect()
-        Thread.sleep(1000)    // TODO: Async with callbacks.
+        sleep(1)    // TODO: Async with callbacks.
 
         // Confirm we are connected.
         Assert.assertTrue(connection.isConnected())
@@ -66,13 +63,17 @@ class SimpleSerialConnectionTest {
         } catch (e: Exception) {
             fail(e)
         }
-        Thread.sleep(1000)       // TODO: Async with callbacks.
+        sleep(1)       // TODO: Async with callbacks.
 
         connection.disconnect()
-        Thread.sleep(1000)       // TODO: Async with callbacks.
+        sleep(1)       // TODO: Async with callbacks.
 
         Assert.assertFalse(connection.isConnected())
         // }
+    }
+
+    override fun afterTest() {
+
     }
 
     private fun fail(e: Exception) {

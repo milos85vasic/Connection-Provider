@@ -1,16 +1,16 @@
 buildscript {
-	repositories {
-		jcenter()
-		mavenCentral()
-		maven {
-			url uri("http://repo.milosvasic.net/releases")
-		}
-	}
-	dependencies {
-		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.10"
-		classpath "org.jetbrains.kotlin:kotlin-reflect:1.2.10"
-		classpath "net.milosvasic.groot:Groot:1.0.0-Beta-3"
-	}
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven {
+            url uri("http://repo.milosvasic.net/releases")
+        }
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.10"
+        classpath "org.jetbrains.kotlin:kotlin-reflect:1.2.10"
+        classpath "net.milosvasic.groot:Groot:1.0.0-Beta-3"
+    }
 }
 
 apply plugin: "groot"
@@ -33,20 +33,20 @@ final projectPackage = "simpleserial"
 final projectGroup = "net.milosvasic.connection.provider"
 
 groot.kotlin.project.setup(
-	alpha,
-	beta,
-	version,
-	secondaryVersion,
-	tertiaryVersion,
-	projectGroup,
-	projectPackage
+        alpha,
+        beta,
+        version,
+        secondaryVersion,
+        tertiaryVersion,
+        projectGroup,
+        projectPackage
 )
 
 String fullPackage = groot.kotlin.project.projectPackage
 String fullVersion = groot.kotlin.project.projectVersion
 
 dependencies {
-	compile project('::Connection_Provider_-_Commons')
+    compile project(':Connection_Provider_-_Commons')
 }
 
 groot.deployment.ftp.host = ftpServer
