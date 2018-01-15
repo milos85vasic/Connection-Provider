@@ -46,7 +46,7 @@ class SimpleSerialConnection internal constructor(
 
     override fun write(data: ByteArray) {
         executor.execute {
-            output.writeBytes(data)
+            output.appendBytes(data)
             callback.onDataWritten(data)
         }
     }
