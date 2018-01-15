@@ -10,10 +10,10 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class SimpleSerialConnectionTest : ToolkitTest() {
 
+    override val tag: String = javaClass.simpleName
+
     private var expectedError = ""
-    private val logger = ConsoleLogger()
     private val toWrite = AtomicInteger()
-    private val tag = javaClass.simpleName
     private val path = "${System.getProperty("user.home")}/test.txt"
 
     private val callback = object : ConnectionCallback {
@@ -59,22 +59,19 @@ class SimpleSerialConnectionTest : ToolkitTest() {
     override fun testImplementation() {
         // Repeat test N times
         for (z in 0..100) {
+            log("Test execution: $z [ START ]")
             val start = System.currentTimeMillis()
             val criteria = SimpleSerialConnectionProvidingCriteria(path, callback)
             val connection = ConnectionProvider.provide(criteria)
             Assert.assertNotNull(connection)
             // Connecting - Disconnecting N times in a row
             for (x in 0..10) {
+                log("Connect (disconnect) execution: $x [ START ]")
                 // Ensure not connected
                 Assert.assertFalse(connection.isConnected())
                 // Connect
-                connection.connect() // FIXME: Possible race condition in test.
-                                     // We make lock anyway even we had 'Fast connected'.
-                if (connection.isConnected()) {
-                    wrn("Fast connected.")
-                } else {
-                    lock()
-                }
+                connection.connect()
+                lock(300, false)
                 // Confirm we are connected.
                 Assert.assertTrue(connection.isConnected())
                 // Confirm we can't connect twice.
@@ -82,41 +79,29 @@ class SimpleSerialConnectionTest : ToolkitTest() {
                 connection.connect()
                 // If expected error is empty, then we executed this ver fast.
                 // In that case we do not need any lock.
-                if (expectedError == "") {
-                    wrn("Fast expected exception.")
-                } else {
-                    lock()
-                }
+                lock(300, false)
                 // If assertion below passes that means we received 'Already connected' expected error.
                 Assert.assertEquals("", expectedError)
                 // Writing data N times in a row
                 while (toWrite.get() < 10) {
                     val counter = toWrite.get()
-                    log("To write: $counter")
+                    log("Writing execution: $counter")
                     connection.write("$counter".toByteArray())
-                    if (toWrite.get() == counter) {
-                        lock()
-                    } else {
-                        wrn("Fast written.")
-                    }
+                    lock(300, false)
                 }
                 // Disconnect
                 // Ensure connected
                 Assert.assertTrue(connection.isConnected())
                 connection.disconnect() // FIXME: Possible race condition in test.
-                                        // We make lock anyway even we had 'Fast disconnect'.
-                if (connection.isConnected()) {
-                    lock()
-                } else {
-                    wrn("Fast disconnected.")
-                }
+                // We make lock anyway even we had 'Fast disconnect'.
+                lock(300, false)
                 Assert.assertFalse(connection.isConnected())
+                log("Connect (disconnect) execution: $x [ END ]")
             }
             val lasting = System.currentTimeMillis() - start
             log("Test completed in: $lasting")
-            Assert.assertTrue(lasting < 500)
             // TODO: Assert file content.
-            sleep(500, false)
+            log("Test execution: $z [ END ]")
         }
     }
 
@@ -127,11 +112,5 @@ class SimpleSerialConnectionTest : ToolkitTest() {
     private fun fail(error: String) {
         Assert.fail(error)
     }
-
-    private fun log(msg: String) = logger.v(tag, msg)
-
-    private fun err(msg: String) = logger.e(tag, msg)
-
-    private fun wrn(msg: String) = logger.w(tag, msg)
 
 }

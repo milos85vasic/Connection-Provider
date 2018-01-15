@@ -22,7 +22,7 @@ groot.registerRepository("http://repo.milosvasic.net/releases")
 groot.kotlin.version = "1.2.10"
 
 groot.depend("net.milosvasic.logger", "Logger", "1.2.3")
-groot.depend("net.milosvasic.testing.toolkit", "TestingToolkit", "1.0.0")
+groot.depend("net.milosvasic.testing.toolkit", "TestingToolkit", "1.0.2")
 
 final alpha = 0
 final beta = 0
