@@ -10,6 +10,7 @@ import java.io.File
 class SimpleSerialConnectionTest : ToolkitTest() {
 
     private var toWrite = ""
+    private var expectedError = ""
     private val logger = ConsoleLogger()
     private val tag = javaClass.simpleName
     private val path = "${System.getProperty("user.home")}/test.txt"
@@ -34,6 +35,12 @@ class SimpleSerialConnectionTest : ToolkitTest() {
         }
 
         override fun onError(error: String) {
+            if (error == expectedError) {
+                log("Received expected error: $error}")
+                expectedError = ""
+                unlock()
+                return
+            }
             fail(error)
         }
     }
@@ -59,8 +66,11 @@ class SimpleSerialConnectionTest : ToolkitTest() {
             // Confirm we are connected.
             Assert.assertTrue(connection.isConnected())
             // Confirm we can't connect twice.
-            // connection.connect() // TODO: Will fail!
-            // lock()
+            expectedError = "Already connected"
+            connection.connect()
+            lock()
+            // If assertion below passws that means we received 'Already connected' expected error.
+            Assert.assertEquals("", expectedError)
             // Writing data N times in a row
             for (y in 0..10) {
                 toWrite = "$y"
