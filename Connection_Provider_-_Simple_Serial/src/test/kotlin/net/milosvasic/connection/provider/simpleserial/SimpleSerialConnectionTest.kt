@@ -100,13 +100,18 @@ class SimpleSerialConnectionTest : ToolkitTest() {
             }
             val lasting = System.currentTimeMillis() - start
             log("Test completed in: $lasting")
-            // TODO: Assert file content.
+            val dataSize = File(path).length()
+            wrn("Data length: $dataSize")
+            Assert.assertTrue(dataSize > 0)
             log("Test execution: $z [ END ]")
         }
     }
 
     override fun afterTest() {
-
+        val testFile = File(path)
+        if (testFile.exists()) {
+            testFile.delete()
+        }
     }
 
     private fun fail(error: String) {
