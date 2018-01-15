@@ -28,9 +28,11 @@ class SimpleSerialConnectionTest : ToolkitTest() {
         }
 
         override fun onDataWritten(data: ByteArray) {
+            val twrt = toWrite
+            toWrite = ""
             val written = String(data)
-            log("Written: $written (to write was: $toWrite)")
-            Assert.assertTrue(written == toWrite)
+            log("Written: $written (to write was: $twrt)")
+            Assert.assertTrue(written == twrt)
             unlock()
         }
 
@@ -55,37 +57,64 @@ class SimpleSerialConnectionTest : ToolkitTest() {
     }
 
     override fun testImplementation() {
-        val start = System.currentTimeMillis()
-        val criteria = SimpleSerialConnectionProvidingCriteria(path, callback)
-        val connection = ConnectionProvider.provide(criteria)
-        Assert.assertNotNull(connection)
-        // Connecting - Disconnecting N times in a row
-        for (x in 0..10) {
-            // Connect
-            connection.connect()
-            lock()
-            // Confirm we are connected.
-            Assert.assertTrue(connection.isConnected())
-            // Confirm we can't connect twice.
-            expectedError = "Already connected"
-            connection.connect()
-            lock()
-            // If assertion below passes that means we received 'Already connected' expected error.
-            Assert.assertEquals("", expectedError)
-            // Writing data N times in a row
-            for (y in 0..10) {
-                toWrite = "$y"
-                connection.write(toWrite.toByteArray())
-                lock()
+        // Repeat test N times
+        for (z in 0..10) {
+            val start = System.currentTimeMillis()
+            val criteria = SimpleSerialConnectionProvidingCriteria(path, callback)
+            val connection = ConnectionProvider.provide(criteria)
+            Assert.assertNotNull(connection)
+            // Connecting - Disconnecting N times in a row
+            for (x in 0..10) {
+                // Ensure not connected
+                Assert.assertFalse(connection.isConnected())
+                // Connect
+                connection.connect()
+                if (connection.isConnected()) {
+                    wrn("Fast connected.")
+                } else {
+                    lock()
+                }
+                // Confirm we are connected.
+                Assert.assertTrue(connection.isConnected())
+                // Confirm we can't connect twice.
+                expectedError = "Already connected"
+                connection.connect()
+                // If expected error is empty, then we executed this ver fast.
+                // In that case we do not need any lock.
+                if (expectedError == "") {
+                    wrn("Fast expected exception.")
+                } else {
+                    lock()
+                }
+                // If assertion below passes that means we received 'Already connected' expected error.
+                Assert.assertEquals("", expectedError)
+                // Writing data N times in a row
+                for (y in 0..10) {
+                    toWrite = "$y"
+                    log("To write: $y")
+                    connection.write(toWrite.toByteArray())
+                    if (!toWrite.isEmpty()) {
+                        lock()
+                    } else {
+                        wrn("Fast written.")
+                    }
+                }
+                // Disconnect
+                // Ensure connected
+                Assert.assertTrue(connection.isConnected())
+                connection.disconnect()
+                if (connection.isConnected()) {
+                    lock()
+                } else {
+                    wrn("Fast disconnected.")
+                }
+                Assert.assertFalse(connection.isConnected())
             }
-            // Disconnect
-            connection.disconnect()
-            lock()
-            Assert.assertFalse(connection.isConnected())
+            val lasting = System.currentTimeMillis() - start
+            log("Test completed in: $lasting")
+            Assert.assertTrue(lasting < 500)
+            sleep(500, false)
         }
-        val lasting = System.currentTimeMillis() - start
-        log("Test completed in: $lasting")
-        Assert.assertTrue(lasting < 500)
     }
 
     override fun afterTest() {
@@ -99,5 +128,7 @@ class SimpleSerialConnectionTest : ToolkitTest() {
     private fun log(msg: String) = logger.v(tag, msg)
 
     private fun err(msg: String) = logger.e(tag, msg)
+
+    private fun wrn(msg: String) = logger.w(tag, msg)
 
 }
