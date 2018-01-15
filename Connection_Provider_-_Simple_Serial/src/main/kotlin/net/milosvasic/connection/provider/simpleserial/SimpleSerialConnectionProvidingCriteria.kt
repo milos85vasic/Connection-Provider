@@ -3,16 +3,16 @@ package net.milosvasic.connection.provider.simpleserial
 import net.milosvasic.connection.provider.commons.*
 
 class SimpleSerialConnectionProvidingCriteria(
-        val comPort: String,
+        val comPortOut: String,
         val callback: ConnectionCallback,
-        val comPortOut: String? = null
+        val comPortIn: String? = null
 ) : ConnectionProvidingCriteria() {
 
     override fun getProvider() = object : ConnectionProviding<ConnectionProvidingCriteria> {
         override fun provide(criteria: ConnectionProvidingCriteria) = SimpleSerialConnection(
                 callback,
-                comPort,
-                comPortOut
+                comPortOut,
+                comPortIn
         )
     }
 
