@@ -102,7 +102,8 @@ class SimpleSerialConnectionTest : ToolkitTest() {
                 // Disconnect
                 // Ensure connected
                 Assert.assertTrue(connection.isConnected())
-                connection.disconnect()
+                connection.disconnect() // FIXME: Possible race condition in test.
+                                        // We make lock anyway even we had 'Fast disconnect'.
                 if (connection.isConnected()) {
                     lock()
                 } else {
