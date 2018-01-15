@@ -100,13 +100,6 @@ class SimpleSerialConnectionTest : ToolkitTest() {
             }
             val lasting = System.currentTimeMillis() - start
             log("Test completed in: $lasting")
-            val output = File(path)
-            val dataSize = output.length()
-            wrn("Data length: $dataSize")
-            output.readLines().forEach { line ->
-                wrn("Data content: $line")
-            }
-            Assert.assertTrue(dataSize > 0)
             log("Test execution: $z [ END ]")
         }
     }
