@@ -17,35 +17,37 @@ class SimpleSerialConnection internal constructor(
     override val executor = Executor.obtainExecutor(2)
 
     override fun connect() {
-        if (isConnected()) {
-            callback.onError("Already connected")
-            return
-        }
-        val fileOut = File(comPortOut)
-        try {
-            outputStream = BufferedOutputStream(FileOutputStream(fileOut))
-            if (outputStream == null) {
-                disconnect("Couldn't connect to: $comPortOut")
+        executor.execute {
+            if (isConnected()) {
+                callback.onError("Already connected")
+                return@execute
             }
-        } catch (e: Exception) {
-            disconnect(e.message)
-            return
-        }
-        var inPath = comPortOut
-        comPortIn?.let {
-            inPath = comPortIn
-        }
-        val fileIn = File(inPath)
-        try {
-            inputStream = BufferedInputStream(FileInputStream(fileIn))
-            inputStream?.let {
-                startReading()
-                return
+            val fileOut = File(comPortOut)
+            try {
+                outputStream = BufferedOutputStream(FileOutputStream(fileOut))
+                if (outputStream == null) {
+                    disconnect("Couldn't connect to: $comPortOut")
+                }
+            } catch (e: Exception) {
+                disconnect(e.message)
+                return@execute
             }
-            disconnect("Couldn't connect to: $fileIn")
-        } catch (e: Exception) {
-            disconnect(e.message)
-            return
+            var inPath = comPortOut
+            comPortIn?.let {
+                inPath = comPortIn
+            }
+            val fileIn = File(inPath)
+            try {
+                inputStream = BufferedInputStream(FileInputStream(fileIn))
+                inputStream?.let {
+                    startReading()
+                    return@execute
+                }
+                disconnect("Couldn't connect to: $fileIn")
+            } catch (e: Exception) {
+                disconnect(e.message)
+                return@execute
+            }
         }
     }
 

@@ -55,6 +55,7 @@ class SimpleSerialConnectionTest : ToolkitTest() {
     }
 
     override fun testImplementation() {
+        val start = System.currentTimeMillis()
         val criteria = SimpleSerialConnectionProvidingCriteria(path, callback)
         val connection = ConnectionProvider.provide(criteria)
         Assert.assertNotNull(connection)
@@ -69,7 +70,7 @@ class SimpleSerialConnectionTest : ToolkitTest() {
             expectedError = "Already connected"
             connection.connect()
             lock()
-            // If assertion below passws that means we received 'Already connected' expected error.
+            // If assertion below passes that means we received 'Already connected' expected error.
             Assert.assertEquals("", expectedError)
             // Writing data N times in a row
             for (y in 0..10) {
@@ -82,6 +83,9 @@ class SimpleSerialConnectionTest : ToolkitTest() {
             lock()
             Assert.assertFalse(connection.isConnected())
         }
+        val lasting = System.currentTimeMillis() - start
+        log("Test completed in: $lasting")
+        Assert.assertTrue(lasting < 500)
     }
 
     override fun afterTest() {
