@@ -6,12 +6,13 @@ import net.milosvasic.logger.ConsoleLogger
 import net.milosvasic.testing.toolkit.ToolkitTest
 import org.junit.Assert
 import java.io.File
+import java.util.concurrent.atomic.AtomicInteger
 
 class SimpleSerialConnectionTest : ToolkitTest() {
 
-    private var toWrite = ""
     private var expectedError = ""
     private val logger = ConsoleLogger()
+    private val toWrite = AtomicInteger()
     private val tag = javaClass.simpleName
     private val path = "${System.getProperty("user.home")}/test.txt"
 
@@ -28,8 +29,7 @@ class SimpleSerialConnectionTest : ToolkitTest() {
         }
 
         override fun onDataWritten(data: ByteArray) {
-            val twrt = toWrite
-            toWrite = ""
+            val twrt = "${toWrite.getAndIncrement()}"
             val written = String(data)
             log("Written: $written (to write was: $twrt)")
             Assert.assertTrue(written == twrt)
@@ -38,7 +38,7 @@ class SimpleSerialConnectionTest : ToolkitTest() {
 
         override fun onError(error: String) {
             if (error == expectedError) {
-                log("Received expected error: $error}")
+                log("Received expected error: $error")
                 expectedError = ""
                 unlock()
                 return
@@ -58,7 +58,7 @@ class SimpleSerialConnectionTest : ToolkitTest() {
 
     override fun testImplementation() {
         // Repeat test N times
-        for (z in 0..10) {
+        for (z in 0..100) {
             val start = System.currentTimeMillis()
             val criteria = SimpleSerialConnectionProvidingCriteria(path, callback)
             val connection = ConnectionProvider.provide(criteria)
@@ -89,11 +89,11 @@ class SimpleSerialConnectionTest : ToolkitTest() {
                 // If assertion below passes that means we received 'Already connected' expected error.
                 Assert.assertEquals("", expectedError)
                 // Writing data N times in a row
-                for (y in 0..10) {
-                    toWrite = "$y"
-                    log("To write: $y")
-                    connection.write(toWrite.toByteArray())
-                    if (!toWrite.isEmpty()) {
+                while (toWrite.get() < 10) {
+                    val counter = toWrite.get()
+                    log("To write: $counter")
+                    connection.write("$counter".toByteArray())
+                    if (toWrite.get() == counter) {
                         lock()
                     } else {
                         wrn("Fast written.")
@@ -113,6 +113,7 @@ class SimpleSerialConnectionTest : ToolkitTest() {
             val lasting = System.currentTimeMillis() - start
             log("Test completed in: $lasting")
             Assert.assertTrue(lasting < 500)
+            // TODO: Assert file content.
             sleep(500, false)
         }
     }
