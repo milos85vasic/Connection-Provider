@@ -8,19 +8,25 @@ import java.io.File
 
 class SimpleSerialConnectionTest : ToolkitTest() {
 
+    private var toWrite = ""
     private val path = "${System.getProperty("user.home")}/test.txt"
 
     private val callback = object : ConnectionCallback {
-        override fun onData(data: ByteArray) {
-            Assert.fail("! ! ! ! ! ")
-        }
-
-        override fun onError(e: Exception) {
-            fail(e)
-        }
-
         override fun onConnectivityChanged(connected: Boolean) {
-            // TODO("not implemented")
+            unlock()
+        }
+
+        override fun onDataReceived(data: ByteArray) {
+            // TODO: Implement this.
+        }
+
+        override fun onDataWritten(data: ByteArray) {
+            Assert.assertTrue(data.toString() == toWrite)
+            unlock()
+        }
+
+        override fun onError(error: String) {
+            fail(error)
         }
     }
 
@@ -38,43 +44,35 @@ class SimpleSerialConnectionTest : ToolkitTest() {
         val connection = ConnectionProvider.provide(criteria)
         Assert.assertNotNull(connection)
         // Connecting - Disconnecting in a row.
-        // for (x in 0..10) {       // TODO: Return back 10 iterations.
-        connection.connect()
-        sleep(1)    // TODO: Async with callbacks.
+        for (x in 0..10) {
+            connection.connect()
+            lock()
 
-        // Confirm we are connected.
-        Assert.assertTrue(connection.isConnected())
+            // Confirm we are connected.
+            Assert.assertTrue(connection.isConnected())
 
-        // Confirm we can't connect twice.
-//        var failed = false
-//        try {
-//            connection.connect()
-//        } catch (e: Exception) {
-//            failed = true
-//        }
-//        Assert.assertTrue(failed)
+            // Confirm we can't connect twice.
+            // connection.connect() // TODO: Will fail!
 
-        // Try to write data:
-        try {
-            connection.write("Test\n".toByteArray())
-        } catch (e: Exception) {
-            fail(e)
+            // Try to write data N times:
+            for (y in 0..10) {
+                connection.write("$y\n".toByteArray())
+                lock()
+            }
+
+            connection.disconnect()
+            lock()
+
+            Assert.assertFalse(connection.isConnected())
         }
-        sleep(1)       // TODO: Async with callbacks.
-
-        connection.disconnect()
-        sleep(1)       // TODO: Async with callbacks.
-
-        Assert.assertFalse(connection.isConnected())
-        // }
     }
 
     override fun afterTest() {
 
     }
 
-    private fun fail(e: Exception) {
-        Assert.fail("Error: $e")
+    private fun fail(error: String) {
+        Assert.fail(error)
     }
 
 }

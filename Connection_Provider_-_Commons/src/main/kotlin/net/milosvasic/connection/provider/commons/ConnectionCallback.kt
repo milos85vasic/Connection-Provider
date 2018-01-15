@@ -2,9 +2,11 @@ package net.milosvasic.connection.provider.commons
 
 interface ConnectionCallback {
 
-    fun onError(e: Exception)
+    fun onError(error: String)
 
-    fun onData(data: ByteArray)
+    fun onDataReceived(data: ByteArray)
+
+    fun onDataWritten(data: ByteArray)
 
     fun onConnectivityChanged(connected: Boolean)
 
