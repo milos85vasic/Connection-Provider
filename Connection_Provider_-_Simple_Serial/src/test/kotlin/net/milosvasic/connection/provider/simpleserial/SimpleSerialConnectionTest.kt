@@ -2,16 +2,13 @@ package net.milosvasic.connection.provider.simpleserial
 
 import net.milosvasic.connection.provider.commons.ConnectionCallback
 import net.milosvasic.connection.provider.commons.ConnectionProvider
-import net.milosvasic.logger.ConsoleLogger
 import net.milosvasic.testing.toolkit.ToolkitTest
 import org.junit.Assert
-import org.junit.Before
-import org.junit.Test
 import java.io.File
 
 class SimpleSerialConnectionTest : ToolkitTest() {
 
-    val path = "${System.getProperty("user.home")}/test.txt"
+    private val path = "${System.getProperty("user.home")}/test.txt"
 
     private val callback = object : ConnectionCallback {
         override fun onData(data: ByteArray) {
